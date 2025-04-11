@@ -19,7 +19,9 @@ def userChoice(choice, tasks):
         delete_task(tasks, task_number)
     elif choice == 3:
         display_tasks(tasks) 
-    elif choice == 4: 
+    elif choice == 4:
+        pass
+    elif choice == 5: 
         return ("Exiting application. Goodbye!")
     else:
         print("Invalid choice!\n")
@@ -55,6 +57,11 @@ def add_task(tasks, task_name, deadline):
         tasks.append({"task": task_name, "deadline": deadline_date})
         print("Task added successfully!\n")
 
+# TODO ask if user wants to change task, or mark complete
+# def update_task(tasks, )
+
+
+
 
 def display_tasks(tasks):
     if not tasks:
@@ -80,10 +87,31 @@ Welcome to the To-Do List Application!
         print("1. Add Task")
         print("2. Delete Task")
         print("3. Display Tasks")
-        print("4. Exit")
+        print("4. Update Task")
+        print("5. Exit")
+        print()
 
-        choice = int(input("Enter your choice: "))
-        value  = userChoice(choice, tasks)
-        if value == "Exiting application. Goodbye!":
-            print(value)
-            break
+        try:
+          choice = int(input("Enter your choice: ").strip())
+          if 1 <= choice <= 5:
+            value  = userChoice(choice, tasks)
+            if value == "Exiting application. Goodbye!":
+                print(value)
+                break
+          else:
+              print("Error: Invalid number. Please enter a different choice.")
+              print()
+        except ValueError:
+            print("Error: That is not an integer. Please enter a different choice.")
+            print()
+        
+'''
+TODO 
+use regex to test date
+
+Add an Update Task Feature - Allow users to modify an existing task instead of deleting and re-adding it.
+
+Implement an Exception Handler - Currently, we only validate user choice for integers, but if a user enters a character or an invalid input, the program may crash. Improve error handling to make it more robust.
+
+Mark Tasks as Completed – Instead of deleting, allow users to mark tasks as "Done" and keep a record of completed tasks.
+'''        
