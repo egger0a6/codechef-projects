@@ -32,7 +32,7 @@ def get_questions():
             "question": "What will be the output of len('Python')?",
             "options": ["A) 5", "B) 6", "C) 7", "D) Error"], 
             "answer": "B"
-        }
+        },
 
         {
             "question": "Which of the following operators has the highest precedence?",
@@ -60,7 +60,7 @@ def get_questions():
 
         {
             "question": "What is the output of the following code:\nstr = \"pynative\"\nprint (str[1:3])",
-            "options": ["A) py", "B) yn", "C)  pyn", "D) yna"],
+            "options": ["A) py", "B) yn", "C) pyn", "D) yna"],
             "answer" : "B"
         },
 
