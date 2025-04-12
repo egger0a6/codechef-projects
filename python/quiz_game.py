@@ -17,9 +17,9 @@ def get_questions():
             },
 
         {
-            "question:" "Which of the following operators has the highest precedence?",
-            "options:": ["A) % (Modulus)", "B) & (BitWise AND)", "C) ** (Exponent)", "D) > (Comparison)"],
-            "answer:": "C"
+            "question" "Which of the following operators has the highest precedence?",
+            "options": ["A) % (Modulus)", "B) & (BitWise AND)", "C) ** (Exponent)", "D) > (Comparison)"],
+            "answer": "C"
         },
 
         {
@@ -59,7 +59,7 @@ def get_questions():
         },
 
         {
-            "question": "What is the output of the following code:\nfor i in range(10, 15, 1):\nprint( i, end=', ')",
+            "question": "What is the output of the following code:\nfor i in range(10, 15, 1):\n\tprint( i, end=', ')",
             "options": ["A) 10, 11, 12, 13, 14", "B) 10, 11, 12, 13, 14, 15"],
             "answer" : "A"
         },
@@ -72,6 +72,15 @@ def countdown_timer():
         time.sleep(1)
     print("\nTime's up!\n")
 
+
+def display_question(question_data, question_number):
+    # -------------------- WRITE YOUR CODE HERE ----------------------
+    print("\n====================")
+    print(f"Question {question_number}: {question_data['question']}")
+    for option in question_data["options"]:
+        print(option)
+        
+
 def play_quiz():
     print("Welcome to Python Quiz!")
     
@@ -80,6 +89,11 @@ def play_quiz():
     
     # Shuffle questions
     random.shuffle(questions)
+
+    index = 1
+    for question in questions:
+        display_question(question, index)
+        index += 1
 
 # --------------------------------------------------   
 
