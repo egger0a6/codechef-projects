@@ -79,21 +79,29 @@ def display_question(question_data, question_number):
     print(f"Question {question_number}: {question_data['question']}")
     for option in question_data["options"]:
         print(option)
-        
+
+
+def get_user_answer():
+    user_answer = input("Now enter your answer (A, B, C, D): ").strip().upper()
+    if user_answer in ["A", "B", "C", "D"]:
+        return user_answer
+    else:
+        return None        
+
 
 def play_quiz():
     print("Welcome to Python Quiz!")
-    
     # Get questions
     questions = get_questions()
-    
     # Shuffle questions
     random.shuffle(questions)
+    score = 0
 
-    index = 1
-    for question in questions:
-        display_question(question, index)
-        index += 1
+    for i, question in enumerate(questions, start=1):
+        display_question(question, i)
+        countdown_timer()
+        user_answer = get_user_answer()
+        print("your response: ", user_answer)
 
 # --------------------------------------------------   
 
