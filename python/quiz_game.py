@@ -87,7 +87,7 @@ def countdown_timer():
     print("\nYou have 10 seconds to think...")
     for i in range(10, 0, -1):
         print(f"\rTime left: {i} seconds ", end="")
-        time.sleep(1)
+        # time.sleep(1)
     print("\nTime's up!\n")
 
 
@@ -99,8 +99,8 @@ def display_question(question_data, question_number):
 
 
 def get_user_answer():
-    user_answer = input("Now enter your answer (A, B, C, D): ").strip().upper()
-    if user_answer in ["A", "B", "C", "D"]:
+    user_answer = input("Now enter your answer (A, B, C, D, S (to skip - will not impact your score)): ").strip().upper()
+    if user_answer in ["A", "B", "C", "D", "S"]:
         return user_answer
     else:
         return None
@@ -128,15 +128,21 @@ def play_quiz():
     # Shuffle questions
     random.shuffle(questions)
     score = 0
+    skipped_questions = []
 
     for i, question in enumerate(questions, start=1):
         display_question(question, i)
         countdown_timer()
         user_answer = get_user_answer()
+        if user_answer == "S":
+            skipped_questions.append(str(i))
+            print("Question skipped.")
+            continue
         result = check_answer(user_answer, question["answer"])
         score = update_score(score, result)
 
-    print(f"Your final score is: {score} / {len(questions)}")
+    print(f"Your final score is: {score} / {len(questions) - len(skipped_questions)}")
+    print(f"Questions skipped: {", ".join(skipped_questions) if skipped_questions else "No questions skipped."}")
     print("Thanks for playing!")
 
 # --------------------------------------------------   
