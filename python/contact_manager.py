@@ -36,10 +36,31 @@ def add_contact():
 
 
 def view_contacts():
-    """Displays all contacts."""
+    if not contacts:
+        print("No contacts available!")
+        return
     
+    print("Contact List: ")
+    for phone, contact in contacts.items():
+        print(f"{contact}: {phone}")
+
+
 def search_contact():
-    """Searches for a contact."""
+    query = input("Enter name or phone number to search: ").strip()
+
+    if query in contacts:
+        print(f"{contacts[query]}: {query}")
+        return
+
+    found = False
+    for phone, name in contacts.items():
+        if name.lower() == query.lower():
+            print(f"{name}: {phone}")
+            found = True
+
+    if not found:
+        print("Contact not found!")
+        
     
 def update_contact():
     """Updates a contact."""
