@@ -60,13 +60,48 @@ def search_contact():
 
     if not found:
         print("Contact not found!")
-        
+
     
 def update_contact():
-    """Updates a contact."""
+    if not contacts:
+        print("No contacts available to update!")
+        return
+    
+    phone = input("Enter phone number to update name: ").strip()
+
+    if phone in contacts:
+        current_name = contacts[phone]
+        new_name = input(f"Current name: {current_name}\nEnter new name: ").strip()
+
+        if new_name:
+            contacts[phone] = new_name
+            print(f"Successfully updated name to: {new_name} ({phone})")
+        else:
+            print("Name cannot be empty!")
+            return
+    else:
+        print(f"Contact with phone '{phone}' not found!")
+        return
     
 def delete_contact():
-    """Deletes a contact."""
+    if not contacts:
+        print("No contacts available to delete!")
+        return
+
+    name_to_delete = input("Enter name of contact to delete: ").strip()
+
+    phone_to_delete = None
+    for phone, name in contacts.items():
+        if name.lower() == name_to_delete.lower():
+            phone_to_delete = phone
+            break
+    
+    if not phone_to_delete:
+        print(f"No contact found with name '{name_to_delete}'")
+        return
+    
+    del contacts[phone_to_delete]
+    print(f"Contact '{name_to_delete}' deleted successfully!")
 
 
 # Main execution loop
