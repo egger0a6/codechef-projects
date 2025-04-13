@@ -22,8 +22,29 @@ def get_words_split(text):
 
 def get_words_regex(text):
     # Use regex to extract words while ignoring punctuation  
-    words = re.findall(r"\b\w+\b", text)
+    words = re.findall(r"\b\w+[-]*\w+\b", text)
     return words
+
+
+def get_sentences(text):
+    # Normalize line breaks
+    text = re.sub(r"\n+", "\n", text)
+    
+    # Replace sentence-ending punctuation with a marker
+    text = re.sub(r'[.!?]+(?:["\']?\s+|\s*$)', ' END ', text)
+
+    # Treat standalone newlines as potential sentence breaks
+    text = re.sub(r"\n", " END ", text)
+
+    sentences = [s for s in text.split("END") if s.strip()]
+
+    return sentences
+
+
+def get_paragraphs(text):
+    paragraphs = [p for p in text.split("\n\n") if p.strip()]
+    return paragraphs
+
 
 def word_frequency(words):
     search_word = input("Enter the word to search: ")
@@ -45,3 +66,11 @@ if __name__ == "__main__":
         total_words = len(words)
         word_freq, search_word = word_frequency(words)
         display_results(total_words, search_word, word_freq)
+
+        sentences = get_sentences(text)
+        total_sentences = len(sentences)
+        print(f"Total sentences: {total_sentences}")
+
+        paragraphs = get_paragraphs(text)
+        total_paragraphs = len(paragraphs)
+        print(f"Total paragraphs: {total_paragraphs}")
