@@ -1,4 +1,4 @@
-import json
+import json, os
 
 # Dictionary to store contacts
 contacts = {}
@@ -121,7 +121,6 @@ def save_contacts_to_json():
         "Are you sure you want to save your contacts? "
         "This will overwrite your current saved contacts. (Y/N): "
     ).strip().lower()
-    print(save_file)
 
     if save_file != "y" and save_file != "n":
         return
@@ -143,7 +142,36 @@ def save_contacts_to_json():
 
 
 def load_contacts():
-    pass
+    global contacts
+    if contacts:
+        view_contacts()
+    else:
+        print("No contacts available.")
+    
+    load_file = input(
+        "Are you sure you want to load your contacts? "
+        "This will overwrite your current local contacts. (Y/N): "
+    ).strip().lower()
+
+    if load_file != "y" and load_file != "n":
+        return
+    
+    if load_file == "n":
+        print("Contacts not loaded. Operation cancelled.")
+        return
+    
+    file_name = "saved_contacts.json"
+
+    if os.path.exists(file_name):
+        try:
+            with open(file_name, "r") as file:
+                contacts = json.load(file)
+        except json.JSONDecodeError:
+            print("Error: The file contains invalid JSON.")
+        except Exception as e:
+            print(f"An error occured: {e}")
+    else:
+        print(f"File '{file_name}' does not exist.")
 
 
 # Main execution loop
