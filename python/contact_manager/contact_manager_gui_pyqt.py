@@ -85,11 +85,14 @@ class ContactManager(QWidget):
         name_query = self.name_input.text().strip()
         phone_query = self.phone_input.text().strip()
         self.contact_list.clear()
+
+        if not name_query and not phone_query:
+            self.show_message("Error", "Search requires either a name or phone input")
+            return
+
         found = False
         for phone, name in self.contacts.items():
-            print(phone, name)
-            if phone_query == phone or name_query.lower() == name.lower():
-                print("Here")
+            if (phone_query and phone_query in phone) or (name_query and name_query.lower() in name.lower()):
                 self.contact_list.addItem(f"{name}: {phone}")
                 found = True
         if not found:
@@ -98,6 +101,10 @@ class ContactManager(QWidget):
     def update_contact(self):
         phone = self.phone_input.text().strip()
         new_name = self.name_input.text().strip()
+
+        if not new_name:
+            self.show_message("Error", "Name cannot be empty!")
+            return
 
         if phone in self.contacts:
             self.contacts[phone] = new_name
