@@ -166,6 +166,7 @@ def load_contacts():
         try:
             with open(file_name, "r") as file:
                 contacts = json.load(file)
+                print("Contacts loaded successfully.")
         except json.JSONDecodeError:
             print("Error: The file contains invalid JSON.")
         except Exception as e:
