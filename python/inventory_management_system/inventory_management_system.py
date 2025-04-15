@@ -12,37 +12,50 @@ def add_product():
 
     if name in inventory:
         inventory[name][0] += quantity
+        print(f"Product '{name}' already catalogued. Added quantity: {quantity}. New stock: {inventory[name][0]}")
     else:
         inventory[name] = [quantity, price]
-
-    print(f"Product '{name}' added successfully!\n")
-
-
-# -------------------------------------------------
+        print(f"Product '{name}' added successfully!\n")
 
 
 def view_inventory():
-    # For Viewing Inventory
-    print("View")
+    if not inventory:
+        print("Inventory is empty! \n")
+        return
+    
+    print("Current Inventory:")
+    print("Name\tQuantity\tPrice")
+    for name, details in inventory.items():
+        print(f"{name}\t{details[0]}\t\t${details[1]:.2f}")
+    print()
+
 
 def update_stock():
     # For Updating Stock
     print("Update")
 
+
 def delete_product():
     # For Deleting Inventory
     print("Delete")
 
+
 def search_product():
-    # For Searching a Product
-    print("Search")
+    name = input("Enter Product name to search: ")
+
+    if name in inventory:
+        print(f"{name}: Quantity={inventory[name][0]}, Price=${inventory[name][1]:.2f}\n")
+        return
+    else:
+        print("Product not found!")
+
 
 def save_inventory():
     # Saving in inventory
     print("Save")
 
-if __name__ == "__main__":
 
+if __name__ == "__main__":
     while(True):
         print("1. Add Product\n2. View Inventory\n3. Update Stock\n4. Delete Product\n5. Search Product\n6. Save & Exit")
         choice = input("Enter your choice: ")
