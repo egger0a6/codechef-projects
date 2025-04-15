@@ -54,13 +54,13 @@ def view_contacts():
 def search_contact():
     query = input("Enter name or phone number to search: ").strip()
 
-    if query in contacts:
-        print(f"{contacts[query]}: {query}")
+    if not query:
+        print("Error: search query cannot be empty.")
         return
 
     found = False
     for phone, name in contacts.items():
-        if name.lower() == query.lower():
+        if query in phone or query.lower() in name.lower():
             print(f"{name}: {phone}")
             found = True
 
