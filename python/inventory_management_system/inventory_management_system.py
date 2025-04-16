@@ -5,6 +5,7 @@ inventory = {}
 
 
 def add_product():
+    #TODO update to allow category
     """Adds a new product to the inventory with proper validation."""
     name = input("Enter product name: ").strip()
     quantity = int(input("Enter quantity: ").strip())
@@ -19,6 +20,7 @@ def add_product():
 
 
 def view_inventory():
+# TODO update to show category and format output better
     if not inventory:
         print("Inventory is empty! \n")
         return
@@ -31,6 +33,7 @@ def view_inventory():
 
 
 def update_stock():
+    # TODO allow user to update name, category, and price
     name = input("Enter product name to update: ").strip()
 
     if name in inventory:
@@ -62,15 +65,68 @@ def search_product():
 
 
 def save_inventory():
-    # Saving in inventory
-    print("Save")
+# TODO update to save category
+    try:
+        with open("inventory.csv", "w", newline="") as file:
+            writer = csv.writer(file)
+            writer.writerow(["Product Name", "Quantity", "Price"])
+            for name, details in inventory.items():
+                writer.writerow([name, details[0], details[1]])
+            print("Inventory saved to 'inventory.csv'\n")
+    except Exception as e:
+        print(f"An error occurred while saving the inventory: {e}\n")
+
+
+def load_inventory():
+# TODO update to load category
+    try:
+        with open("inventory.csv", "r", newline="") as file:
+            reader = csv.reader(file)
+            next(reader)
+            for row in reader:
+                if len(row) == 3:
+                    name = row[0]
+                    quantity = int(row[1])
+                    price = float(row[2])
+                    inventory[name] = [quantity, price]
+            print("Inventory loaded successfully.")
+    except FileNotFoundError:
+        print("inventory.csv not found. Starting with an empty inventory.")
+    except Exception as e:
+        print(f"An error occurred while loading the inventory: {e}")
+
+
+def sort_inventory():
+    # TODO allow user to sort by name, category, price, or quantity
+    pass
+
+
+def alert_low_stock():
+    min_stock = 3
+    low_stock_alerts = []
+
+    for product in inventory:
+        if inventory[product][0] <= min_stock:
+            low_stock_alerts.append(f"Alert: '{product}' inventory is low!")
+    
+    if low_stock_alerts:
+        print("-"*40)
+        for alert in low_stock_alerts:
+            print(alert)
+        print("-"*40)
+
+def clear_inventory():
+    # TODO allow user to wipe inventory
+    pass
 
 
 if __name__ == "__main__":
+    # TODO add options to sort and clear
+    load_inventory()
     while(True):
+        alert_low_stock()
         print("1. Add Product\n2. View Inventory\n3. Update Stock\n4. Delete Product\n5. Search Product\n6. Save & Exit")
         choice = input("Enter your choice: ").strip()
-
         if choice == "1":
             add_product()
         elif choice == "2":
