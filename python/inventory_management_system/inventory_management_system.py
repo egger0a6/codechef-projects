@@ -6,9 +6,9 @@ inventory = {}
 
 def add_product():
     """Adds a new product to the inventory with proper validation."""
-    name = input("Enter product name: ")
-    quantity = int(input("Enter quantity: "))
-    price = float(input("Enter price per unit: "))
+    name = input("Enter product name: ").strip()
+    quantity = int(input("Enter quantity: ").strip())
+    price = float(input("Enter price per unit: ").strip())
 
     if name in inventory:
         inventory[name][0] += quantity
@@ -31,13 +31,24 @@ def view_inventory():
 
 
 def update_stock():
-    # For Updating Stock
-    print("Update")
+    name = input("Enter product name to update: ").strip()
+
+    if name in inventory:
+        new_quantity = int(input("Enter new quantity: ").strip())
+        inventory[name][0] = new_quantity
+        print(f"Updated '{name}' stock to {new_quantity}\n")
+    else:
+        print("Product not found!\n") 
 
 
 def delete_product():
-    # For Deleting Inventory
-    print("Delete")
+    name = input("Enter product name to delete: ").strip()
+
+    if name in inventory:
+        del inventory[name]
+        print(f"Deleted '{name}' from inventory\n")
+    else:
+        print("Product not found!\n")
 
 
 def search_product():
@@ -58,7 +69,7 @@ def save_inventory():
 if __name__ == "__main__":
     while(True):
         print("1. Add Product\n2. View Inventory\n3. Update Stock\n4. Delete Product\n5. Search Product\n6. Save & Exit")
-        choice = input("Enter your choice: ")
+        choice = input("Enter your choice: ").strip()
 
         if choice == "1":
             add_product()
