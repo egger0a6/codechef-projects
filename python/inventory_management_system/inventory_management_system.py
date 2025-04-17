@@ -121,8 +121,20 @@ def load_inventory():
 
 
 def sort_inventory():
-    # TODO allow user to sort by name, category, price, or quantity
-    pass
+    global inventory
+    print("1. Sort by Name\n2. Sort by Quantity\n3. Sort by Price\n4. Sort by Category\n")
+    choice = input("Enter your choice: ").strip()
+    if choice == "1":
+        inventory = {name: inventory[name] for name in sorted(inventory.keys())}
+    elif choice == "2":
+        inventory = {name: details for name, details in sorted(inventory.items(), key=lambda item: item[1][0])}
+    elif choice == "3":
+        inventory = dict(sorted(inventory.items(), key=lambda item: item[1][1]))
+    elif choice == "4":
+        inventory = dict(sorted(inventory.items(), key=lambda item: item[1][2]))
+    else:
+        print("No valid option selected.")
+        return
 
 
 def alert_low_stock():
