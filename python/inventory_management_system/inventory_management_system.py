@@ -20,7 +20,6 @@ def add_product():
 
 
 def view_inventory():
-# TODO update to show category and format output better
     if not inventory:
         print("Inventory is empty! \n")
         return
@@ -37,15 +36,37 @@ def view_inventory():
 
 
 def update_stock():
-    # TODO allow user to update name, category, and price
     name = input("Enter product name to update: ").strip()
+    print("\nLeave inputs EMPTY to leave unchanged.")
 
-    if name in inventory:
-        new_quantity = int(input("Enter new quantity: ").strip())
-        inventory[name][0] = new_quantity
-        print(f"Updated '{name}' stock to {new_quantity}\n")
-    else:
-        print("Product not found!\n") 
+    if name not in inventory:
+        print("Product not found!\n")
+        return
+
+    new_name = input("Enter new name: ").strip()
+    quantity_input = input("Enter new quantity: ").strip()
+    price_input = input("Enter new price: ").strip()
+    new_category = input("Enter new category: ").strip()
+
+    current_quantity, current_price, current_category = inventory[name]
+
+    new_quantity = int(quantity_input) if quantity_input.isdigit() else current_quantity
+
+    try:
+        new_price = float(price_input) if price_input else current_price
+    except ValueError:
+        new_price = current_price
+
+    new_category = new_category if new_category else current_category
+
+    updated_name = new_name if new_name else name
+    inventory.pop(name)
+    inventory[updated_name] = [new_quantity, new_price, new_category]
+
+    print(f"\nUpdated '{name}' to:")
+    print(f"{'Name':<10} {'Quantity':<10} {'Price':<10} {'Category':<10}")
+    print("-" * 45)
+    print(f"{updated_name:<10} {new_quantity:<10} ${new_price:<9.2f} {new_category:<10}\n")
 
 
 def delete_product():
