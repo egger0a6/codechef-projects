@@ -80,13 +80,25 @@ def delete_product():
 
 
 def search_product():
-    name = input("Enter Product name to search: ")
+    name_query = input("Enter part of the product name (or leave empty): ").strip().lower()
+    price_query = input("Enter part of the price (or leave empty): ").strip()
 
-    if name in inventory:
-        print(f"{name}: Quantity={inventory[name][0]}, Price=${inventory[name][1]:.2f}\n")
-        return
+    matches_found = False
+    print("\nSearch Results:")
+    print("Name\t\tQuantity\tPrice\tCategory")
+
+    for name, details in inventory.items():
+        name_match = name_query in name.lower()
+        price_match = price_query in f"{details[1]:.2f}"
+
+        if (name_query and name_match) or (price_query and price_match):
+            print(f"{name:12}\t{details[0]}\t\t${details[1]:.2f}\t{details[2]}")
+            matches_found = True
+    
+    if not matches_found:
+        print("No matching products found.\n")
     else:
-        print("Product not found!")
+        print()
 
 
 def save_inventory():
@@ -135,6 +147,7 @@ def sort_inventory():
     else:
         print("No valid option selected.")
         return
+    view_inventory()
 
 
 def alert_low_stock():
