@@ -8,6 +8,7 @@ def add_product():
     #TODO update to allow category
     """Adds a new product to the inventory with proper validation."""
     name = input("Enter product name: ").strip()
+    category = input("Enter product category").strip()
     quantity = int(input("Enter quantity: ").strip())
     price = float(input("Enter price per unit: ").strip())
 
@@ -15,7 +16,7 @@ def add_product():
         inventory[name][0] += quantity
         print(f"Product '{name}' already catalogued. Added quantity: {quantity}. New stock: {inventory[name][0]}")
     else:
-        inventory[name] = [quantity, price]
+        inventory[name] = [quantity, price, category]
         print(f"Product '{name}' added successfully!\n")
 
 
