@@ -21,12 +21,6 @@ def user_choice(choice):
         return
     else:
         print("Invalid choice. Please enter a valid option.")
-
-
-
-
-
-#--------------------------------------------------------
     
 
 def add_student():
@@ -79,7 +73,18 @@ def view_students():
     
 
 def search_student(return_data=False):
-    """Function to search for a student by ID or Name."""
+    query = input("Enter Student Roll Number or Name to search: ").strip()
+
+    with open(FILE_NAME, "r") as file:
+        for line in file:
+            student_id, name, age, course, department = line.strip().split(",")
+            if query == student_id or query.lower() == name.lower():
+                print("\nStudent Found:")
+                print('Roll Number\tName\tAge\tCourse\tDepartment')
+                print(student_id,"\t\t",name,"\t",age,"\t",course,"\t",department)
+                return
+
+    print("Student not found.")
 
 
 def update_student():
