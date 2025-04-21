@@ -88,11 +88,70 @@ def search_student(return_data=False):
 
 
 def update_student():
-    """Function to update an existing student record in the file."""
+    student_id = input("Enter Student Roll Number to update: ").strip()
+    
+    with open(FILE_NAME, "r") as file:
+        lines = file.readlines()
+
+    updated_data = []
+    found = False
+
+    for line in lines:
+        if line.startswith(f"{student_id},"):
+            found = True
+            student_id, name, age, course, department = line.strip().split(",")
+
+            new_name = input(f"Enter New Name ({name}): ").strip()
+            if new_name and not new_name.isalpha():
+                print("Invalid Name! Name should contain only alphabets.")
+                return
+            new_name = new_name or name
+
+            new_age = input(f"Enter New Age ({age}): ").strip()
+            if new_age and (not new_age.isdigit() or not (1 <= int(new_age) <= 100)):
+                print("Invalid Age! Age should be a number between 1 and 100.")
+                return
+            new_age = new_age or age
+
+            new_course = input(f"Enter New Course ({course}): ").strip() or course
+            new_department = input(f"Enter New Department ({department}): ").strip() or department
+
+            updated_data.append(f"{student_id},{new_name},{new_age},{new_course},{new_department}\n")
+        else:
+            updated_data.append(line)
+
+    if not found:
+        print("Student not found.")
+        return
+
+    with open(FILE_NAME, "w") as file:
+        file.writelines(updated_data)
+    print("Student record updated successfully!")
     
 
 def delete_student():
-    """Function to delete a student record from the file."""
+    student_id = input().strip()
+
+    with open(FILE_NAME, "r") as file:
+        lines = file.readlines()
+
+    updated_data = []
+    found = False
+
+    for line in lines:
+        if line.startswith(f"{student_id},"):
+            found = True
+        else:
+            updated_data.append(line)
+    
+    if not found:
+        print("Student not found.")
+        return
+    
+    with open(FILE_NAME, "w") as file:
+        file.writelines(updated_data)
+    
+    print("Student record deleted successfully!")
 
 
 if __name__ == '__main__':
