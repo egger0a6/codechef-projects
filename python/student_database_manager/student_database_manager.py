@@ -30,7 +30,36 @@ def user_choice(choice):
     
 
 def add_student():
-    """Function to add a new student record to the file."""
+    student_id = input("Enter Student Roll Number (Numeric): ").strip()
+    if not student_id.isdigit():
+        print("Invalid Roll Number! It should contain only numbers.")
+        return
+    
+    with open(FILE_NAME, "r") as file:
+        for line in file:
+            if line.startswith(f"{student_id},"):
+                print("Student Roll Number already exists. Use update option instead.")
+                return
+
+    name = input("Enter First Name: ").strip()
+    if not name.isalpha():
+        print("Invalid Name! Name should contain only alphabets.")
+        return
+
+    age = input("Enter Age: ").strip()
+    if not age.isdigit() or int(age) > 100:
+        print("Invalid Age! Age should be a number under 100.")
+        return
+
+    course = input("Enter Course: ").strip()
+    department = input("Enter Department: ").strip()
+
+
+    
+    with open(FILE_NAME, "a") as file:
+        file.write(f"{student_id},{name},{age},{course},{department}\n")
+
+    print("Student added successfully!")
     
 
 def view_students():
