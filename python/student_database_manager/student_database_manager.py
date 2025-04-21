@@ -63,7 +63,19 @@ def add_student():
     
 
 def view_students():
-    """Function to display all student records from the file."""
+    with open(FILE_NAME, "r") as file:
+        lines = file.readlines()
+    
+    if not lines:
+        print("No student records found.")
+        return
+    
+    print("\nStudent Records:")
+    print('Roll Number\tName\tAge\tCourse\tDepartment')
+    for line in lines:
+        student = line.strip().split(",")
+        student_id, name, age, course, department = student
+        print(student_id,"\t\t",name,"\t",age,"\t",course,"\t",department)
     
 
 def search_student(return_data=False):
