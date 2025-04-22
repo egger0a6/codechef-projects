@@ -72,7 +72,7 @@ def view_students():
         print(student_id,"\t\t",name,"\t",age,"\t",course,"\t",department)
     
 
-def search_student(return_data=False):
+def search_student():
     query = input("Enter Student Roll Number or Name to search: ").strip()
 
     with open(FILE_NAME, "r") as file:

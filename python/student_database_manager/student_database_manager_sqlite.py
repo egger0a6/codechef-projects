@@ -10,7 +10,7 @@ def create_table():
         cursor = conn.cursor()
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS students (
-                student_id INTEGER PRIMARY KEY
+                student_id INTEGER PRIMARY KEY,
                 name TEXT NOT NULL,
                 age INTEGER NOT NULL,
                 course TEXT,
@@ -51,55 +51,69 @@ def add_student():
             print("Student Roll Number already exists. Use update option instead.")
             return
         
-    name = input("Enter First Name: ").strip()
-    if not name.isalpha():
-        print("Invalid Name! Name should contain only alphabets.")
-        return
+        name = input("Enter First Name: ").strip()
+        if not name.isalpha():
+            print("Invalid Name! Name should contain only alphabets.")
+            return
 
-    age = input("Enter Age: ").strip()
-    if not age.isdigit() or int(age) > 100:
-        print("Invalid Age! Age should be a number under 100.")
-        return
+        age = input("Enter Age: ").strip()
+        if not age.isdigit() or int(age) > 100:
+            print("Invalid Age! Age should be a number under 100.")
+            return
 
-    course = input("Enter Course: ").strip()
-    department = input("Enter Department: ").strip()
+        course = input("Enter Course: ").strip()
+        department = input("Enter Department: ").strip()
 
-    cursor.execute("INSERT INTO students VALUES (?, ?, ?, ?, ?)",
-                  (int(student_id), name, int(age), course, department))
-    conn.commit()
+        cursor.execute("INSERT INTO students VALUES (?, ?, ?, ?, ?)",
+                      (int(student_id), name, int(age), course, department))
+        conn.commit()
 
-    print("Student added successfully!")
+        print("Student added successfully!")
     
 
 def view_students():
-    with open(FILE_NAME, "r") as file:
-        lines = file.readlines()
-    
-    if not lines:
+    conn = sqlite3.connect(DB_NAME)
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT * FROM students")
+    rows = cursor.fetchall()
+
+    if not rows:
         print("No student records found.")
         return
     
     print("\nStudent Records:")
-    print('Roll Number\tName\tAge\tCourse\tDepartment')
-    for line in lines:
-        student = line.strip().split(",")
+    print(f"{'Roll Number':<15}{'Name':<20}{'Age':<5}{'Course':<20}{'Department':<20}")
+    print("-" * 80)
+    for student in rows:
         student_id, name, age, course, department = student
-        print(student_id,"\t\t",name,"\t",age,"\t",course,"\t",department)
+        print(f"{student_id:<15}{name:<20}{age:<5}{course:<20}{department:<20}")
+
+    conn.close()
     
 
 def search_student(return_data=False):
     query = input("Enter Student Roll Number or Name to search: ").strip()
 
-    with open(FILE_NAME, "r") as file:
-        for line in file:
-            student_id, name, age, course, department = line.strip().split(",")
-            if query == student_id or query.lower() == name.lower():
-                print("\nStudent Found:")
-                print('Roll Number\tName\tAge\tCourse\tDepartment')
-                print(student_id,"\t\t",name,"\t",age,"\t",course,"\t",department)
-                return
+    with sqlite3.connect(DB_NAME) as conn:
+        cursor = conn.cursor()
 
-    print("Student not found.")
+        if query.isdigit():
+            cursor.execute("SELECT * FROM students WHERE CAST(student_id AS TEXT) LIKE ?", ('%' + query + '%',))
+        else:
+            cursor.execute("SELECT * FROM students WHERE LOWER(name) LIKE ?", ('%' + query.lower() + '%',))
+
+        results = cursor.fetchall()
+
+        if not results:
+            print("No matching student found.")
+            return
+
+        print("\nMatching Student(s):")
+        print("{:<12} {:<15} {:<5} {:<15} {:<15}".format("Roll Number", "Name", "Age", "Course", "Department"))
+        for student in results:
+            student_id, name, age, course, department = student
+            print("{:<12} {:<15} {:<5} {:<15} {:<15}".format(student_id, name, age, course, department))
 
 
 def update_student():
