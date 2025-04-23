@@ -165,5 +165,5 @@ if __name__ == '__main__':
         print("6. Exit")
         choice = input("Choose an option (1-6): ").strip()
         user_choice(choice)
-        if(choice==6):
+        if(choice=="6"):
             break

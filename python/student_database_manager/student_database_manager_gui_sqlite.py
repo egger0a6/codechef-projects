@@ -1,3 +1,4 @@
+import sys
 import sqlite3
 
 DB_NAME = "students.db"
@@ -122,7 +123,7 @@ def update_student():
     
     with sqlite3.connect(DB_NAME) as conn:
         cursor = conn.cursor()
-        cursor.execute("SELECT * FROM students WHERE student_id = ?", (int(student_id),))
+        cursor.execute("SELECT * FROM students WHERE student_id = ?", (int(student_id,)))
         student = cursor.fetchone()
 
         if not student:
