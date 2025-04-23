@@ -111,7 +111,19 @@ class StudentDBApp(QMainWindow):
         self.load_table(rows)
         
 
-    def search_student():
+    def search_student(self):
+        query = self.name_input.text().strip() or self.id_input.text().strip()
+        with sqlite3.connect(DB_NAME) as conn:
+            cursor = conn.cursor()
+            if query.isdigit():
+                cursor.execute("SELECT * FROM students WHERE CAST(student_id AS TEXT) LIKE ?", ('%' + query + '%',))
+            else:
+                cursor.execute("SELECT * FROM students WHERE LOWER(name) LIKE ?", ('%' + query.lower() + '%',))
+            rows = cursor.fetchall()
+
+        self.load_table(rows)
+
+
         query = input("Enter Student Roll Number or Name to search: ").strip()
 
         with sqlite3.connect(DB_NAME) as conn:
