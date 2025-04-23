@@ -92,7 +92,7 @@ def view_students():
     conn.close()
     
 
-def search_student(return_data=False):
+def search_student():
     query = input("Enter Student Roll Number or Name to search: ").strip()
 
     with sqlite3.connect(DB_NAME) as conn:
@@ -118,69 +118,64 @@ def search_student(return_data=False):
 
 def update_student():
     student_id = input("Enter Student Roll Number to update: ").strip()
-    
-    with open(FILE_NAME, "r") as file:
-        lines = file.readlines()
 
-    updated_data = []
-    found = False
-
-    for line in lines:
-        if line.startswith(f"{student_id},"):
-            found = True
-            student_id, name, age, course, department = line.strip().split(",")
-
-            new_name = input(f"Enter New Name ({name}): ").strip()
-            if new_name and not new_name.isalpha():
-                print("Invalid Name! Name should contain only alphabets.")
-                return
-            new_name = new_name or name
-
-            new_age = input(f"Enter New Age ({age}): ").strip()
-            if new_age and (not new_age.isdigit() or not (1 <= int(new_age) <= 100)):
-                print("Invalid Age! Age should be a number between 1 and 100.")
-                return
-            new_age = new_age or age
-
-            new_course = input(f"Enter New Course ({course}): ").strip() or course
-            new_department = input(f"Enter New Department ({department}): ").strip() or department
-
-            updated_data.append(f"{student_id},{new_name},{new_age},{new_course},{new_department}\n")
-        else:
-            updated_data.append(line)
-
-    if not found:
-        print("Student not found.")
+    if not student_id.isdigit():
+        print("Invalid Roll Number!")
         return
-
-    with open(FILE_NAME, "w") as file:
-        file.writelines(updated_data)
-    print("Student record updated successfully!")
     
+    with sqlite3.connect(DB_NAME) as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM students WHERE student_id = ?", (int(student_id,)))
+        student = cursor.fetchone()
+
+        if not student:
+            print("Student not found.")
+            return
+        
+        _, name, age, course, department = student
+
+        new_name = input(f"Enter New Name ({name}): ").strip()
+        if new_name and not new_name.isalpha():
+            print("Invalid Name! Name should contain only alphabets.")
+            return
+        new_name = new_name or name
+
+        new_age = input(f"Enter New Age ({age}): ").strip()
+        if new_age and (not new_age.isdigit() or not (1 <= int(new_age) <= 100)):
+            print("Invalid Age! Age should be a number between 1 and 100.")
+            return
+        new_age = new_age or age
+
+        new_course = input(f"Enter New Course ({course}): ").strip() or course
+        new_department = input(f"Enter New Department ({department}): ").strip() or department
+
+        cursor.execute("""
+            UPDATE students
+            SET name = ?, age = ?, course = ?, department = ?
+            WHERE student_id = ?
+        """, (new_name, int(new_age), new_course, new_department, int(student_id)))
+
+        conn.commit()
+        print("Student record updated successfully!")
+
 
 def delete_student():
-    student_id = input().strip()
+    student_id = input("Enter Student Roll Number to delete: ").strip()
 
-    with open(FILE_NAME, "r") as file:
-        lines = file.readlines()
-
-    updated_data = []
-    found = False
-
-    for line in lines:
-        if line.startswith(f"{student_id},"):
-            found = True
-        else:
-            updated_data.append(line)
-    
-    if not found:
-        print("Student not found.")
+    if not student_id.isdigit():
+        print("Invalid Roll Number!")
         return
     
-    with open(FILE_NAME, "w") as file:
-        file.writelines(updated_data)
-    
-    print("Student record deleted successfully!")
+    with sqlite3.connect(DB_NAME) as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM students WHERE student_id = ?", (int(student_id),))
+        if not cursor.fetchone():
+            print("Student not found.")
+            return
+        
+        cursor.execute("DELETE FROM students WHERE student_id = ?", (int(student_id),))
+        conn.commit()
+        print("Student record deleted successfully!")
 
 
 if __name__ == '__main__':
