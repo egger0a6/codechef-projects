@@ -1,5 +1,9 @@
 import sys
 import sqlite3
+from PyQt5.QtWidgets import (
+    QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
+    QLabel, QLineEdit, QPushButton, QTableWidget, QTableWidgetItem, QMessageBox
+)
 
 DB_NAME = "students.db"
 
@@ -18,176 +22,190 @@ def create_table():
         conn.commit()
 
 
-def user_choice(choice):
-    if choice == "1":
-        add_student()
-    elif choice == "2":
-        view_students()
-    elif choice == "3":
-        search_student()
-    elif choice == "4":
-        update_student()
-    elif choice == "5":
-        delete_student()
-    elif choice == "6":
-        print("Exiting Student Database Manager...")
-        return
-    else:
-        print("Invalid choice. Please enter a valid option.")
+class StudentDBApp(QMainWindow):
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("Student Database Manager")
+        self.setGeometry(100, 100, 800, 500)
+
+        self.init_ui()
+
+    def init_ui(self):
+        central_widget = QWidget()
+        self.setCentralWidget(central_widget)
+
+        layout = QVBoxLayout()
+
+        # Input fields
+        form_layout = QHBoxLayout()
+        self.id_input = QLineEdit()
+        self.name_input = QLineEdit()
+        self.age_input = QLineEdit()
+        self.course_input = QLineEdit()
+        self.dept_input = QLineEdit()
+
+        form_layout.addWidget(QLabel("ID:"))
+        form_layout.addWidget(self.id_input)
+        form_layout.addWidget(QLabel("Name:"))
+        form_layout.addWidget(self.name_input)
+        form_layout.addWidget(QLabel("Age:"))
+        form_layout.addWidget(self.age_input)
+        form_layout.addWidget(QLabel("Course:"))
+        form_layout.addWidget(self.course_input)
+        form_layout.addWidget(QLabel("Dept:"))
+        form_layout.addWidget(self.dept_input)
+
+        layout.addLayout(form_layout)
+
+        # Buttons
+        btn_layout = QHBoxLayout()
+        add_btn = QPushButton("Add")
+        view_btn = QPushButton("View All")
+        search_btn = QPushButton("Search")
+        update_btn = QPushButton("Update")
+        delete_btn = QPushButton("Delete")
+
+        add_btn.clicked.connect(self.add_student)
+        view_btn.clicked.connect(self.view_students)
+        search_btn.clicked.connect(self.search_student)
+        update_btn.clicked.connect(self.update_student)
+        delete_btn.clicked.connect(self.delete_student)
+
+        for btn in [add_btn, view_btn, search_btn, update_btn, delete_btn]:
+            btn_layout.addWidget(btn)
+
+        layout.addLayout(btn_layout)
+
+        # Table
+        self.table = QTableWidget()
+        self.table.setColumnCount(5)
+        self.table.setHorizontalHeaderLabels(["ID", "Name", "Age", "Course", "Department"])
+        layout.addWidget(self.table)
+
+        central_widget.setLayout(layout)
     
 
-def add_student():
-    student_id = input("Enter Student Roll Number (Numeric): ").strip()
-    if not student_id.isdigit():
-        print("Invalid Roll Number! It should contain only numbers.")
-        return
-    
-    with sqlite3.connect(DB_NAME) as conn:
-        cursor = conn.cursor()
-        cursor.execute("SELECT * FROM students WHERE student_id = ?", (student_id,))
-        if cursor.fetchone():
-            print("Student Roll Number already exists. Use update option instead.")
+    def add_student(self):
+        try:
+            student = (
+                int(self.id_input.text().strip()),
+                self.name_input.text().strip(),
+                int(self.age_input.text().strip()),
+                self.course_input.text().strip(),
+                self.dept_input.text().strip(),
+            )
+            with sqlite3.connect(DB_NAME) as conn:
+                cursor = conn.cursor()
+                cursor.execute("INSERT INTO students VALUES (?, ?, ?, ?, ?)", student)
+                conn.commit()
+            QMessageBox.information(self, "Success", "Student added successfully!")
+        except Exception as e:
+            QMessageBox.warning(self, "Error", f"Could not add student:\n{e}")
+        
+
+    def view_students(self):
+        with sqlite3.connect(DB_NAME) as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT * FROM students")
+            rows = cursor.fetchall()
+        self.load_table(rows)
+        
+
+    def search_student():
+        query = input("Enter Student Roll Number or Name to search: ").strip()
+
+        with sqlite3.connect(DB_NAME) as conn:
+            cursor = conn.cursor()
+
+            if query.isdigit():
+                cursor.execute("SELECT * FROM students WHERE CAST(student_id AS TEXT) LIKE ?", ('%' + query + '%',))
+            else:
+                cursor.execute("SELECT * FROM students WHERE LOWER(name) LIKE ?", ('%' + query.lower() + '%',))
+
+            results = cursor.fetchall()
+
+            if not results:
+                print("No matching student found.")
+                return
+
+            print("\nMatching Student(s):")
+            print("{:<12} {:<15} {:<5} {:<15} {:<15}".format("Roll Number", "Name", "Age", "Course", "Department"))
+            for student in results:
+                student_id, name, age, course, department = student
+                print("{:<12} {:<15} {:<5} {:<15} {:<15}".format(student_id, name, age, course, department))
+
+
+    def update_student():
+        student_id = input("Enter Student Roll Number to update: ").strip()
+
+        if not student_id.isdigit():
+            print("Invalid Roll Number!")
             return
         
-        name = input("Enter First Name: ").strip()
-        if not name.isalpha():
-            print("Invalid Name! Name should contain only alphabets.")
-            return
+        with sqlite3.connect(DB_NAME) as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT * FROM students WHERE student_id = ?", (int(student_id,)))
+            student = cursor.fetchone()
 
-        age = input("Enter Age: ").strip()
-        if not age.isdigit() or int(age) > 100:
-            print("Invalid Age! Age should be a number under 100.")
-            return
+            if not student:
+                print("Student not found.")
+                return
+            
+            _, name, age, course, department = student
 
-        course = input("Enter Course: ").strip()
-        department = input("Enter Department: ").strip()
+            new_name = input(f"Enter New Name ({name}): ").strip()
+            if new_name and not new_name.isalpha():
+                print("Invalid Name! Name should contain only alphabets.")
+                return
+            new_name = new_name or name
 
-        cursor.execute("INSERT INTO students VALUES (?, ?, ?, ?, ?)",
-                      (int(student_id), name, int(age), course, department))
-        conn.commit()
+            new_age = input(f"Enter New Age ({age}): ").strip()
+            if new_age and (not new_age.isdigit() or not (1 <= int(new_age) <= 100)):
+                print("Invalid Age! Age should be a number between 1 and 100.")
+                return
+            new_age = new_age or age
 
-        print("Student added successfully!")
-    
+            new_course = input(f"Enter New Course ({course}): ").strip() or course
+            new_department = input(f"Enter New Department ({department}): ").strip() or department
 
-def view_students():
-    conn = sqlite3.connect(DB_NAME)
-    cursor = conn.cursor()
+            cursor.execute("""
+                UPDATE students
+                SET name = ?, age = ?, course = ?, department = ?
+                WHERE student_id = ?
+            """, (new_name, int(new_age), new_course, new_department, int(student_id)))
 
-    cursor.execute("SELECT * FROM students")
-    rows = cursor.fetchall()
-
-    if not rows:
-        print("No student records found.")
-        return
-    
-    print("\nStudent Records:")
-    print(f"{'Roll Number':<15}{'Name':<20}{'Age':<5}{'Course':<20}{'Department':<20}")
-    print("-" * 80)
-    for student in rows:
-        student_id, name, age, course, department = student
-        print(f"{student_id:<15}{name:<20}{age:<5}{course:<20}{department:<20}")
-
-    conn.close()
-    
-
-def search_student():
-    query = input("Enter Student Roll Number or Name to search: ").strip()
-
-    with sqlite3.connect(DB_NAME) as conn:
-        cursor = conn.cursor()
-
-        if query.isdigit():
-            cursor.execute("SELECT * FROM students WHERE CAST(student_id AS TEXT) LIKE ?", ('%' + query + '%',))
-        else:
-            cursor.execute("SELECT * FROM students WHERE LOWER(name) LIKE ?", ('%' + query.lower() + '%',))
-
-        results = cursor.fetchall()
-
-        if not results:
-            print("No matching student found.")
-            return
-
-        print("\nMatching Student(s):")
-        print("{:<12} {:<15} {:<5} {:<15} {:<15}".format("Roll Number", "Name", "Age", "Course", "Department"))
-        for student in results:
-            student_id, name, age, course, department = student
-            print("{:<12} {:<15} {:<5} {:<15} {:<15}".format(student_id, name, age, course, department))
+            conn.commit()
+            print("Student record updated successfully!")
 
 
-def update_student():
-    student_id = input("Enter Student Roll Number to update: ").strip()
+    def delete_student():
+        student_id = input("Enter Student Roll Number to delete: ").strip()
 
-    if not student_id.isdigit():
-        print("Invalid Roll Number!")
-        return
-    
-    with sqlite3.connect(DB_NAME) as conn:
-        cursor = conn.cursor()
-        cursor.execute("SELECT * FROM students WHERE student_id = ?", (int(student_id,)))
-        student = cursor.fetchone()
-
-        if not student:
-            print("Student not found.")
+        if not student_id.isdigit():
+            print("Invalid Roll Number!")
             return
         
-        _, name, age, course, department = student
+        with sqlite3.connect(DB_NAME) as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT * FROM students WHERE student_id = ?", (int(student_id),))
+            if not cursor.fetchone():
+                print("Student not found.")
+                return
+            
+            cursor.execute("DELETE FROM students WHERE student_id = ?", (int(student_id),))
+            conn.commit()
+            print("Student record deleted successfully!")
 
-        new_name = input(f"Enter New Name ({name}): ").strip()
-        if new_name and not new_name.isalpha():
-            print("Invalid Name! Name should contain only alphabets.")
-            return
-        new_name = new_name or name
-
-        new_age = input(f"Enter New Age ({age}): ").strip()
-        if new_age and (not new_age.isdigit() or not (1 <= int(new_age) <= 100)):
-            print("Invalid Age! Age should be a number between 1 and 100.")
-            return
-        new_age = new_age or age
-
-        new_course = input(f"Enter New Course ({course}): ").strip() or course
-        new_department = input(f"Enter New Department ({department}): ").strip() or department
-
-        cursor.execute("""
-            UPDATE students
-            SET name = ?, age = ?, course = ?, department = ?
-            WHERE student_id = ?
-        """, (new_name, int(new_age), new_course, new_department, int(student_id)))
-
-        conn.commit()
-        print("Student record updated successfully!")
+    def load_table(self, rows):
+        self.table.setRowCount(len(rows))
+        for row_idx, row_data in enumerate(rows):
+            for col_idx, item in enumerate(row_data):
+                self.table.setItem(row_idx, col_idx, QTableWidgetItem(str(item)))
 
 
-def delete_student():
-    student_id = input("Enter Student Roll Number to delete: ").strip()
-
-    if not student_id.isdigit():
-        print("Invalid Roll Number!")
-        return
-    
-    with sqlite3.connect(DB_NAME) as conn:
-        cursor = conn.cursor()
-        cursor.execute("SELECT * FROM students WHERE student_id = ?", (int(student_id),))
-        if not cursor.fetchone():
-            print("Student not found.")
-            return
-        
-        cursor.execute("DELETE FROM students WHERE student_id = ?", (int(student_id),))
-        conn.commit()
-        print("Student record deleted successfully!")
-
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     create_table()
-    while True:
-        print("\n Student Database Manager")
-        print("1. Add a Student")
-        print("2. View All Students")
-        print("3. Search Student by ID or Name")
-        print("4. Update Student Details")
-        print("5. Delete Student")
-        print("6. Exit")
-        choice = input("Choose an option (1-6): ").strip()
-        user_choice(choice)
-        print(choice)
-        if(choice=="6"):
-            break
+    app = QApplication(sys.argv)
+    window = StudentDBApp()
+    window.show()
+    sys.exit(app.exec_())
