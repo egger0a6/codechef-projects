@@ -2,7 +2,8 @@ import sys
 import sqlite3
 from PyQt5.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
-    QLabel, QLineEdit, QPushButton, QTableWidget, QTableWidgetItem, QMessageBox
+    QLabel, QLineEdit, QPushButton, QTableWidget, QTableWidgetItem, QMessageBox,
+    QHeaderView
 )
 
 DB_NAME = "students.db"
@@ -83,6 +84,8 @@ class StudentDBApp(QMainWindow):
         layout.addWidget(self.table)
 
         central_widget.setLayout(layout)
+
+        self.view_students()
     
 
     def add_student(self):
@@ -99,6 +102,7 @@ class StudentDBApp(QMainWindow):
                 cursor.execute("INSERT INTO students VALUES (?, ?, ?, ?, ?)", student)
                 conn.commit()
             QMessageBox.information(self, "Success", "Student added successfully!")
+            self.view_students()
         except Exception as e:
             QMessageBox.warning(self, "Error", f"Could not add student:\n{e}")
         
@@ -127,13 +131,32 @@ class StudentDBApp(QMainWindow):
     def update_student(self):
         try:
             student_id = int(self.id_input.text().strip())
+
             with sqlite3.connect(DB_NAME) as conn:
                 cursor = conn.cursor()
-                cursor.execute("UPDATE students SET name=?, age=?, course=?, department=? WHERE student_id=?",
-                               (self.name_input.text().strip(), int(self.age_input.text().strip()),
-                               self.course_input.text().strip(), self.dept_input.text().strip(), student_id))
+
+                cursor.execute("SELECT * FROM students WHERE student_id = ?", (student_id,))
+                student = cursor.fetchone()
+            
+                if not student:
+                    QMessageBox.warning(self, "Not Found", "Student ID not found.")
+                    return
+                
+                _, current_name, current_age, current_course, current_dept = student
+
+                new_name = self.name_input.text().strip() or current_name
+                new_age_text = self.age_input.text().strip()
+                new_age = int(new_age_text) if new_age_text else current_age
+                new_course = self.course_input.text().strip() or current_course
+                new_dept = self.dept_input.text().strip() or current_dept
+
+                cursor.execute(
+                    "UPDATE students SET name=?, age=?, course=?, department=? WHERE student_id=?",
+                    (new_name, new_age, new_course, new_dept, student_id)
+                )
                 conn.commit()
             QMessageBox.information(self, "Success", "Student updated successfully")
+            self.view_students()
         except Exception as e:
             QMessageBox.warning(self, "Error", f"Could not update student:\n{e}")
 
@@ -141,22 +164,36 @@ class StudentDBApp(QMainWindow):
     def delete_student(self):
         try:
             student_id = int(self.id_input.text().strip())
+
             with sqlite3.connect(DB_NAME) as conn:
                 cursor = conn.cursor()
+
+                cursor.execute("SELECT * FROM students WHERE student_id = ?", (student_id,))
+                student = cursor.fetchone()
+
+                if not student:
+                    QMessageBox.warning(self, "Not Found", "Student ID not found in the database.")
+                    return
+            
                 cursor.execute("DELETE FROM students WHERE student_id = ?", (student_id,))
                 conn.commit()
             QMessageBox.information(self, "Success", "Student deleted successfully!")
+            self.view_students()
         except Exception as e:
             QMessageBox.warning(self, "Error", f"Could not delete student:\n{e}")
 
-        student_id = input("Enter Student Roll Number to delete: ").strip()
-        
 
     def load_table(self, rows):
         self.table.setRowCount(len(rows))
         for row_idx, row_data in enumerate(rows):
             for col_idx, item in enumerate(row_data):
                 self.table.setItem(row_idx, col_idx, QTableWidgetItem(str(item)))
+        header = self.table.horizontalHeader()
+        for i in range(self.table.columnCount()):
+            if i == 3:
+                header.setSectionResizeMode(i, QHeaderView.ResizeToContents)
+        else:
+            header.setSectionResizeMode(i, QHeaderView.Stretch)
 
 
 if __name__ == "__main__":
