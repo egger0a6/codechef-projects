@@ -48,10 +48,26 @@ def encrypt_file(input_file, output_file):
 
         print("File encrypted successfully!")
     except:
-        print("An unexpected error occurred")
+        print("An unexpected error occurred.")
 
 def decrypt_file(input_file, output_file):
-    """Function to decrypt a file using the secret key."""
+    try:
+        with open("secret.key", "rb") as key_file:
+            key = key_file.read()
+
+        cipher = Fernet(key)
+
+        with open(input_file, "rb") as file:
+            encrypted_data = file.read()
+        
+        decrypted_data = cipher.decrypt(encrypted_data)
+
+        with open(output_file, "wb") as file:
+            file.write(decrypted_data)
+        
+        print("File decrypted successfully!")
+    except:
+        print("An unexpected error occurred")
 
 
 if __name__ == "__main__":
