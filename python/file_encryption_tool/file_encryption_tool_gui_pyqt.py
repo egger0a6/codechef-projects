@@ -1,5 +1,5 @@
 import sys
-import os
+import subprocess
 from PyQt5.QtWidgets import (
     QApplication, QWidget, QPushButton, QVBoxLayout,
     QFileDialog, QLabel, QMessageBox
@@ -96,11 +96,33 @@ class FileEncryptor(QWidget):
                     QMessageBox.information(self, "Verified", "Decrypted file matches the original!")
                 else:
                     QMessageBox.warning(self, "Mismatch", "Decrypted file does NOT match the original!")
+
+                # Verify files with shell
+                # if self.verify_file_with_shell(original_path, output_path):
+                #     QMessageBox.information(self, "Verified", "Decryption successful. Files match!")
+                # else:
+                #     QMessageBox.warning(self, "Mismatch", "Decryption complete, but files differ!")
             else:
                 QMessageBox.information(self, "Success", "File decrypted successfully.")
                     
         except Exception as e:
             QMessageBox.warning(self, "Error", f"Decryption failed:\n{e}")
+
+      
+    def verify_file_with_shell(self, original_file, decrypted_file):
+        try:
+            if sys.platform.startswith("win"):
+                # Windows file compare
+                result = subprocess.run(["fc", original_file, decrypted_file], capture_output=True, text=True)
+                return "no differences encountered" in result.stdout.lower()
+            else:
+                # Unix-based file compare
+                result = subprocess.run(["cmp", "-s", original_file, decrypted_file])
+                return result.returncode == 0
+        except Exception as e:
+            QMessageBox.warning(self, "Error", f"Verification failed:\n{e}")
+            return False
+
 
 
 if __name__ == "__main__":
