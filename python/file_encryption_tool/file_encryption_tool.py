@@ -1,4 +1,8 @@
 from cryptography.fernet import Fernet
+from tkinter import Tk, filedialog
+
+# Hide root Tk window
+Tk().withdraw()
 
 def userChoice(choice):
 
@@ -6,13 +10,25 @@ def userChoice(choice):
         generate_key()
 
     elif choice == 2:
-        input_file = input("Enter the file to encrypt: ").strip()
-        output_file = input("Enter the output file name: ").strip()
+        input_file = filedialog.askopenfilename(title="Select file to encrypt")
+        if not input_file:
+            print("No file selected.")
+            return
+        output_file = filedialog.asksaveasfilename(title="Save encrypted file as")
+        if not output_file:
+            print("No output file selected.")
+            return
         encrypt_file(input_file, output_file)
 
     elif choice == 3:
-        input_file = input("Enter the file to decrypt: ").strip()
-        output_file = input("Enter the output file name: ").strip()
+        input_file = filedialog.askopenfilename(title="Select file to decrypt")
+        if not input_file:
+            print("No file selected.")
+            return
+        output_file = filedialog.asksaveasfilename(title="Save decrypted file as")
+        if not output_file:
+            print("No output file selected.")
+            return
         decrypt_file(input_file, output_file)
 
     elif choice == 4:
