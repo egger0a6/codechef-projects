@@ -13,10 +13,19 @@ def userChoice(choice):
 
 
 def digital_clock():
-    """Displays a digital clock."""
+    while True:
+        curr_time = time.localtime()
+        time_str = time.strftime("%Y-%m-%d %H:%M:%S", curr_time)
+        print(f"\rCurrent Time: {time_str}", end="", flush=True)
+        time.sleep(1)
 
 def countdown_timer(seconds):
-    """Counts down from a given number of seconds."""
+    print("Countdown Timer started!")
+    while seconds > 0:
+        print(f"\rTime remaining: {str(seconds)} seconds", end="")
+        time.sleep(1)
+        seconds -= 1
+    print("\nTime's up!")
 
 if __name__ == '__main__':
     while True:
