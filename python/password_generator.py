@@ -16,6 +16,24 @@ def userInput():
 
 def generate_password(length, use_special_chars, use_numbers):
     """Generates a random password based on user preferences."""
+    password = ''
+
+    # Generate remaining characters
+    password = "".join(random.choice(string_char) for _ in range(length - 2))
+
+    # Replace second last character with number if required
+    if use_numbers:
+        password += random.choice(string_num)
+    else:
+        password += random.choice(string_char)
+
+    # Replace last character with special character if required
+    if use_special_chars:
+        password += random.choice(string_special)
+    else:
+        password += random.choice(string_char)
+
+    return password
 
 
 if __name__ == '__main__':
