@@ -25,6 +25,18 @@ def winningCondition(updated_word, turns):
         return 0
     else:
         return 2
+    
+
+def get_starting_consonants(word):
+    shuffled_word = random.sample(word, len(word))
+    vowels = "aeiou"
+    consonants = ""
+    for char in shuffled_word:
+        if char not in vowels:
+            consonants += char
+        if len(consonants) == 2:
+            break
+    return consonants
 
 
 if __name__ == '__main__':
@@ -35,25 +47,29 @@ if __name__ == '__main__':
     time.sleep(0.5)
     
     word = choose_word()
-    turns = len(word)   # number of turns = length of the word to be guessed
-    guesses = ''
+    guesses = get_starting_consonants(word)
+    turns = len(word) - len(guesses)  # number of turns = length of the word to be guessed
     
     while turns > 0:
         print("\nYou have", turns, 'guesses remaining')
-        print(wordDisplay(word, guesses))
+        print(wordDisplay(word, guesses), end=" ")
+        print(f"Guesses: {guesses}")
         guess = input("\nguess a character: ").lower()
         
         if guess in guesses:
             print("\nYou have already tried this letter")
             continue
+        elif len(guess) > 1 or not guess.isalpha():
+            print("\nInvalid guess.")
+            continue
         else:
             guesses += guess
     
         if guess not in word:
+            turns -= 1
             print("\nWrong, Try again")
         
         updated_word = wordDisplay(word, guesses)
-        turns -= 1
         flag = winningCondition(updated_word, turns)
         
         if flag == 0:
@@ -61,5 +77,5 @@ if __name__ == '__main__':
             print("The word was", word)
         elif flag == 1:
             print("\nYou won!")
-            print("You guessed", word, "correctly")
+            print(f"You guessed '{word}' correctly")
             break
